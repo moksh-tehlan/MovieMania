@@ -3,15 +3,16 @@ package presentation.listing.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import domain.model.MediaType
-import domain.model.MoviesAndShows
 import domain.repository.MovieRepository
 import domain.utils.Result
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import utils.DataState
 
 class ListingScreenViewModel(
     private val movieRepository: MovieRepository
@@ -24,20 +25,16 @@ class ListingScreenViewModel(
     val listingScreenEvents = _listingScreenEvents.asSharedFlow()
 
     init {
-        _listingScreenState.update { it.copy(isLoading = true) }
-
         getTrendingMoviesAndShows()
         getPopularMovies()
         getPopularTvShows()
         getTopRatedMovies()
-
-        _listingScreenState.update { it.copy(isLoading = false) }
     }
 
     fun onAction(listingScreenAction: ListingScreenActions) {
         when (listingScreenAction) {
             is ListingScreenActions.OnMovieClick -> onMovieClick(listingScreenAction.movieId)
-            is ListingScreenActions.OnCarousalClick -> onCarousalClick(listingScreenAction.pageNo)
+            is ListingScreenActions.OnCarousalClick -> onCarousalClick(listingScreenAction.id, listingScreenAction.mediaType)
             is ListingScreenActions.OnTvShowClick -> onTvShowClick(listingScreenAction.tvId)
         }
     }
@@ -46,12 +43,11 @@ class ListingScreenViewModel(
         viewModelScope.launch { _listingScreenEvents.emit(ListingScreenEvent.OnTvShowClick(tvId)) }
     }
 
-    private fun onCarousalClick(pageNo: Int) {
-        val trending = _listingScreenState.value.trendingMovies[pageNo]
-        if (trending.mediaType == MediaType.MOVIE) {
-            onMovieClick(trending.id.toString())
+    private fun onCarousalClick(id:String,mediaType: MediaType) {
+        if (mediaType == MediaType.MOVIE) {
+            onMovieClick(id)
         } else {
-            onTvShowClick(trending.id.toString())
+            onTvShowClick(id)
         }
     }
 
@@ -65,7 +61,7 @@ class ListingScreenViewModel(
                 is Result.Error -> {
                     _listingScreenState.update {
                         it.copy(
-                            error = result.error.name
+                            globalError = result.error.name
                         )
                     }
                 }
@@ -73,7 +69,7 @@ class ListingScreenViewModel(
                 is Result.Success -> {
                     _listingScreenState.update {
                         it.copy(
-                            popularMovies = result.data
+                            popularMovies = DataState.Success(result.data)
                         )
                     }
                 }
@@ -88,7 +84,7 @@ class ListingScreenViewModel(
                 is Result.Error -> {
                     _listingScreenState.update {
                         it.copy(
-                            error = result.error.name
+                            globalError = result.error.name
                         )
                     }
                 }
@@ -96,7 +92,7 @@ class ListingScreenViewModel(
                 is Result.Success -> {
                     _listingScreenState.update {
                         it.copy(
-                            trendingMovies = result.data
+                            trendingMovies = DataState.Success(result.data)
                         )
                     }
                 }
@@ -110,7 +106,7 @@ class ListingScreenViewModel(
                 is Result.Error -> {
                     _listingScreenState.update {
                         it.copy(
-                            error = result.error.name
+                            globalError = result.error.name
                         )
                     }
                 }
@@ -118,7 +114,7 @@ class ListingScreenViewModel(
                 is Result.Success -> {
                     _listingScreenState.update {
                         it.copy(
-                            popularTvShows = result.data
+                            popularTvShows = DataState.Success(result.data)
                         )
                     }
                 }
@@ -132,7 +128,7 @@ class ListingScreenViewModel(
                 is Result.Error -> {
                     _listingScreenState.update {
                         it.copy(
-                            error = result.error.name
+                            globalError = result.error.name
                         )
                     }
                 }
@@ -140,7 +136,7 @@ class ListingScreenViewModel(
                 is Result.Success -> {
                     _listingScreenState.update {
                         it.copy(
-                            topRatedMovies = result.data
+                            topRatedMovies = DataState.Success(result.data)
                         )
                     }
                 }

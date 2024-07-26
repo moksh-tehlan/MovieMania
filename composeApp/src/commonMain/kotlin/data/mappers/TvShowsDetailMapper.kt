@@ -2,47 +2,33 @@ package data.mappers
 
 import data.model.TvShowDetailsDto
 import data.model.TvShowSeasonDto
-import domain.model.TvShowDetail
+import domain.model.MediaDetails
+import domain.model.MediaType
+import domain.model.TvShowSeason
 
-fun TvShowDetailsDto.toTvShowDetail() : TvShowDetail{
-    return TvShowDetail(
-        adult = adult,
+fun TvShowDetailsDto.toTvShowDetail(): MediaDetails {
+    return MediaDetails(
         backdropPath = backdropPath,
-        episodeRunTime = episodeRunTime,
-        firstAirDate = firstAirDate,
         genres = genres.map { it.toGenre() },
-        homepage = homepage,
         id = id,
-        inProduction = inProduction,
-        languages = languages,
-        lastAirDate = lastAirDate,
-        name = name,
-        numberOfEpisodes = numberOfEpisodes,
-        numberOfSeasons = numberOfSeasons,
-        originCountry = originCountry,
-        originalLanguage = originalLanguage,
-        originalName = originalName,
         overview = overview,
         popularity = popularity,
         posterPath = posterPath,
         seasons = seasons.map { it.toTvShowSeason() },
-        status = status,
-        tagline = tagline,
-        type = type,
         voteAverage = voteAverage,
         voteCount = voteCount,
+        mediaType = MediaType.TV,
+        title = name,
+        releaseDate = firstAirDate,
+        runtime = null,
     )
 }
 
-fun TvShowSeasonDto.toTvShowSeason() : TvShowDetail.TvShowSeason{
-    return TvShowDetail.TvShowSeason(
-        airDate = airDate,
+fun TvShowSeasonDto.toTvShowSeason(): TvShowSeason {
+    return TvShowSeason(
         episodeCount = episodeCount,
-        id = id,
         name = name,
-        overview = overview,
         posterPath = posterPath,
         seasonNumber = seasonNumber,
-        voteAverage = voteAverage,
     )
 }

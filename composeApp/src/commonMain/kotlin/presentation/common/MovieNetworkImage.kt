@@ -1,5 +1,6 @@
 package presentation.common
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -14,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
 import data.IMAGE_URL
 import io.github.aakira.napier.Napier
+import utils.MovieColor
 
 @Composable
 fun MovieNetworkImage(modifier: Modifier = Modifier, url: String?) {
@@ -23,18 +25,13 @@ fun MovieNetworkImage(modifier: Modifier = Modifier, url: String?) {
         contentScale = ContentScale.Crop,
         loading = {
             Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(30.dp),
-                    color = Color.White
-                )
-            }
+                modifier = Modifier.fillMaxSize().shimmerEffect(),
+            )
         },
         error = {
-            Napier.d("Error: ${it.result}")
-            Text(it.result.toString(), color = androidx.compose.ui.graphics.Color.Red)
+            Box(
+                modifier = Modifier.fillMaxSize().background(MovieColor.veryLightGray.copy(.12f)),
+            )
         },
         contentDescription = "Movie Image",
     )

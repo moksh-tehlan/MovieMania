@@ -26,7 +26,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import domain.model.MoviesAndShows
+import domain.model.Media
+import domain.model.MediaType
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.delay
 import presentation.common.MovieNetworkImage
@@ -35,8 +36,8 @@ import presentation.common.MovieNetworkImage
 @Composable
 fun HomeCarousel(
     modifier: Modifier = Modifier,
-    onItemClick: (Int) -> Unit,
-    trendingList: List<MoviesAndShows>
+    onItemClick: (Long,MediaType) -> Unit,
+    trendingList: List<Media>
 ) {
     Napier.d("HomeCarousel: ${trendingList.size}")
     val thumbnailPagerState = rememberPagerState(initialPage = 0, pageCount = { trendingList.size })
@@ -56,7 +57,7 @@ fun HomeCarousel(
         Box(modifier = Modifier.fillMaxWidth().height(335.dp).clickable(
             interactionSource = remember { MutableInteractionSource() },
             indication = null,
-            onClick = { onItemClick(page) }
+            onClick = { onItemClick(trendingList[page].id, trendingList[page].mediaType) }
         )) {
             MovieNetworkImage(
                 modifier = Modifier.fillMaxWidth().height(250.dp),
@@ -74,7 +75,7 @@ fun HomeCarousel(
                 Column(modifier = Modifier.wrapContentSize().padding(end = 15.dp)) {
                     Text(
                         modifier = Modifier.fillMaxWidth(),
-                        text = trendingList[page].name ?: trendingList[page].title ?: "",
+                        text = trendingList[page].title,
                         style = MaterialTheme.typography.body1,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,

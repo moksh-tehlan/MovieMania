@@ -34,8 +34,8 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import domain.model.Media
 import domain.model.MediaType
-import domain.model.Search
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 import presentation.common.MovieNetworkImage
@@ -159,7 +159,7 @@ private fun SearchScreenView(
 @Composable
 private fun ListingItem(
     modifier: Modifier = Modifier,
-    searchResult: Search,
+    searchResult: Media,
     onClick: (String, MediaType) -> Unit,
 ) {
     Row(
@@ -173,7 +173,7 @@ private fun ListingItem(
         Spacer(modifier = Modifier.width(10.dp))
         Column {
             Text(
-                text = searchResult.title ?: searchResult.name ?: "N/A",
+                text = searchResult.title,
                 style = TextStyle(
                     fontSize = 14.sp,
                     color = Color.White
@@ -181,20 +181,20 @@ private fun ListingItem(
             )
             Spacer(Modifier.height(5.dp))
             Text(
-                text = searchResult.releaseDate ?: searchResult.firstAirDate ?: "",
+                text = searchResult.releaseDate,
                 style = TextStyle(
                     fontSize = 12.sp,
                     color = Color.White.copy(.2f)
                 )
             )
-            Spacer(Modifier.height(5.dp))
+            /*Spacer(Modifier.height(5.dp))
             Text(
-                text = searchResult.popularity.toString(),
+                text = searchResult.,
                 style = TextStyle(
                     fontSize = 12.sp,
                     color = Color.White.copy(.2f)
                 )
-            )
+            )*/
         }
     }
 }

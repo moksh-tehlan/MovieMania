@@ -1,23 +1,17 @@
 package data.mappers
 
 import data.model.MoviesResultDto
-import domain.model.Movies
+import domain.model.Media
+import domain.model.MediaType
 
-fun MoviesResultDto.toMovies(): Movies {
-    return Movies(
-        adult = adult,
+fun MoviesResultDto.toMedia(): Media {
+    return Media(
         backdropPath = backdropPath,
-        genreIds = genreIds,
         id = id,
-        originalLanguage = originalLanguage,
-        originalTitle = originalTitle,
         overview = overview,
-        popularity = popularity,
         posterPath = posterPath,
         releaseDate = releaseDate,
         title = title,
-        video = video,
-        voteAverage = voteAverage,
-        voteCount = voteCount
+        mediaType = MediaType.MOVIE
     )
 }
