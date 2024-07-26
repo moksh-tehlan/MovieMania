@@ -1,6 +1,7 @@
 package data.mappers
 
 import data.model.SearchResultDto
+import domain.model.MediaType
 import domain.model.Search
 
 fun SearchResultDto.toSearch():Search{
@@ -11,7 +12,7 @@ fun SearchResultDto.toSearch():Search{
         originalTitle = originalTitle,
         overview = overview,
         posterPath = posterPath,
-        mediaType = mediaType,
+        mediaType = if (mediaType == "movie") MediaType.MOVIE else MediaType.TV,
         adult = adult,
         originalLanguage = originalLanguage,
         genreIds = genreIds,

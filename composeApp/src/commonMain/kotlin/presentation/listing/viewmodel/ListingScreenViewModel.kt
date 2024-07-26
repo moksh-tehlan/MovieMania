@@ -2,6 +2,7 @@ package presentation.listing.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import domain.model.MediaType
 import domain.model.MoviesAndShows
 import domain.repository.MovieRepository
 import domain.utils.Result
@@ -47,7 +48,7 @@ class ListingScreenViewModel(
 
     private fun onCarousalClick(pageNo: Int) {
         val trending = _listingScreenState.value.trendingMovies[pageNo]
-        if (trending.mediaType == MoviesAndShows.MediaType.MOVIE) {
+        if (trending.mediaType == MediaType.MOVIE) {
             onMovieClick(trending.id.toString())
         } else {
             onTvShowClick(trending.id.toString())

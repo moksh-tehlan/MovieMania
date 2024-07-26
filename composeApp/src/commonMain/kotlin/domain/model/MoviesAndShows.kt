@@ -20,9 +20,4 @@ data class MoviesAndShows(
     val originalTitle: String?,
     val releaseDate: String?,
     val video: Boolean?,
-){
-    enum class MediaType{
-        MOVIE,
-        TV
-    }
-}
+)

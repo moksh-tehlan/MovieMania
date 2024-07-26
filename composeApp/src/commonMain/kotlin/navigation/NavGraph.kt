@@ -74,7 +74,23 @@ fun NavGraph() {
                             null,
                             it.arguments
                         )
-                    )
+                    ),
+                    onMovieClick = {
+                        navController.navigate(
+                            route = NavScreens.MovieDetailScreen,
+                            queryParams = mapOf(
+                                MOVIE_ID to it
+                            )
+                        )
+                    },
+                    onTvShowClick = {
+                        navController.navigate(
+                            route = NavScreens.MovieDetailScreen,
+                            queryParams = mapOf(
+                                TV_ID to it
+                            )
+                        )
+                    }
                 )
                 Box(
                     Modifier.fillMaxWidth().height(250.dp).background(
@@ -139,7 +155,24 @@ fun HomeScreenGraph(
             }
         }
         composable(route = HomeNavScreens.SearchScreen.route) {
-            SearchScreen()
+            SearchScreen(
+                onMovieClick = {
+                    rootNavController.navigate(
+                        route = NavScreens.MovieDetailScreen,
+                        queryParams = mapOf(
+                            MOVIE_ID to it
+                        )
+                    )
+                },
+                onTvShowClick = {
+                    rootNavController.navigate(
+                        route = NavScreens.MovieDetailScreen,
+                        queryParams = mapOf(
+                            TV_ID to it
+                        )
+                    )
+                }
+            )
         }
         composable(route = HomeNavScreens.BookmarksScreen.route) {
             Box(Modifier.fillMaxSize()) {
@@ -150,9 +183,17 @@ fun HomeScreenGraph(
 }
 
 fun NavHostController.navigate(route: NavScreens, queryParams: Map<String, String> = emptyMap()) {
-    navigate(route.createRoute(queryParams))
+    navigate(route.createRoute(queryParams)) {
+        popUpTo(NavScreens.HomeScreen.route) {
+        }
+        launchSingleTop = true
+    }
 }
 
 fun NavController.navigate(route: NavScreens, queryParams: Map<String, String> = emptyMap()) {
-    navigate(route.createRoute(queryParams))
+    navigate(route.createRoute(queryParams)) {
+        popUpTo(NavScreens.HomeScreen.route) {
+        }
+        launchSingleTop = true
+    }
 }

@@ -1,9 +1,10 @@
 package data.mappers
 
 import data.model.MoviesAndShowsResultDto
+import domain.model.MediaType
 import domain.model.MoviesAndShows
 
-fun MoviesAndShowsResultDto.toTrending(): MoviesAndShows {
+fun MoviesAndShowsResultDto.toMoviesAndShows(): MoviesAndShows {
     return MoviesAndShows(
         id = id,
         adult = adult,
@@ -13,7 +14,7 @@ fun MoviesAndShowsResultDto.toTrending(): MoviesAndShows {
         originalTitle = originalTitle,
         overview = overview,
         posterPath = posterPath,
-        mediaType = if (mediaType == "movie") MoviesAndShows.MediaType.MOVIE else MoviesAndShows.MediaType.TV,
+        mediaType = if (mediaType == "movie") MediaType.MOVIE else MediaType.TV,
         popularity = popularity,
         releaseDate = releaseDate,
         video = video,

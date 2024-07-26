@@ -44,7 +44,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import domain.model.MoviesAndShows
+import domain.model.MediaType
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.core.parameter.ParametersHolder
@@ -63,20 +63,24 @@ import utils.MovieColor
 @Composable
 fun DetailScreen(
     parametersHolder: ParametersHolder,
-    viewModel: DetailScreenViewModel = koinViewModel<DetailScreenViewModel>(parameters = { parametersHolder })
+    onMovieClick: (String) -> Unit,
+    onTvShowClick: (String) -> Unit,
+    viewModel: DetailScreenViewModel = koinViewModel<DetailScreenViewModel>(parameters = { parametersHolder }),
 ) {
     val state = viewModel.dataScreenState.collectAsState().value
     when (state.mediaType) {
-        MoviesAndShows.MediaType.MOVIE -> {
+        MediaType.MOVIE -> {
             MovieDetailScreenView(
-                state = state
+                state = state,
+                onMovieClick = onMovieClick
             )
         }
 
-        MoviesAndShows.MediaType.TV -> {
+        MediaType.TV -> {
             println("TV Show Detail ScreenT")
             TvDetailScreenView(
                 state = state,
+                onTvShowClick = onTvShowClick,
                 onAction = viewModel::onAction
             )
         }
@@ -90,6 +94,7 @@ fun DetailScreen(
 @Composable
 private fun MovieDetailScreenView(
     state: DetailScreenState,
+    onMovieClick: (String) -> Unit
 ) {
     val scrollState = rememberScrollState()
     Scaffold(
@@ -239,7 +244,7 @@ private fun MovieDetailScreenView(
                             posterPath = movie.posterPath,
                             title = movie.title,
                             subtitle = movie.releaseDate,
-                            onClick = { }
+                            onClick = { onMovieClick(movie.id.toString()) }
                         )
                     }
                 }
@@ -252,6 +257,7 @@ private fun MovieDetailScreenView(
 @Composable
 private fun TvDetailScreenView(
     state: DetailScreenState,
+    onTvShowClick: (String) -> Unit,
     onAction: (DetailScreenAction) -> Unit,
 ) {
     Scaffold(
@@ -426,7 +432,9 @@ private fun TvDetailScreenView(
                                 posterPath = movie.posterPath,
                                 title = movie.name,
                                 subtitle = movie.firstAirDate,
-                                onClick = { }
+                                onClick = {
+                                    onTvShowClick(movie.id.toString())
+                                }
                             )
                         }
                     }
@@ -441,7 +449,7 @@ private fun StatItem(
     value: Any, // Can handle Double or Long
     icon: Painter,
     contentDescription: String,
-    iconTint: Color = Color.White // Default icon tint
+    iconTint: Color = Color.White, // Default icon tint
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
@@ -478,7 +486,7 @@ private fun GenresTile(
 fun SeasonDropdownMenu(
     seasonsCount: Long,
     selectedSeason: Int,
-    onSeasonSelect: (Int) -> Unit
+    onSeasonSelect: (Int) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
     val seasonList = List(seasonsCount.toInt()) { it + 1 }

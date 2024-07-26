@@ -7,7 +7,7 @@ data class Search(
     val originalTitle: String?,
     val overview: String?,
     val posterPath: String?,
-    val mediaType: String?,
+    val mediaType: MediaType,
     val adult: Boolean?,
     val originalLanguage: String?,
     val genreIds: List<Long>?,
