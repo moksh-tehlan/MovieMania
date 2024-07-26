@@ -1,23 +1,17 @@
 package data.mappers
 
 import data.model.TvResultDto
-import domain.model.TvShows
+import domain.model.Media
+import domain.model.MediaType
 
-fun TvResultDto.toTvShows(): TvShows {
-    return TvShows(
+fun TvResultDto.toMedia(): Media {
+    return Media(
         backdropPath = backdropPath,
-        firstAirDate = firstAirDate,
-        genreIds = genreIds,
         id = id,
-        name = name,
-        originCountry = originCountry,
-        originalLanguage = originalLanguage,
-        originalName = originalName,
         overview = overview,
-        popularity = popularity,
         posterPath = posterPath,
-        voteAverage = voteAverage,
-        voteCount = voteCount,
-        adult = adult
+        title = name,
+        releaseDate = firstAirDate,
+        mediaType = MediaType.TV
     )
 }

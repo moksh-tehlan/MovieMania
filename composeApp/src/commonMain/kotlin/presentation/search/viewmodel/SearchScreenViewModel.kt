@@ -3,7 +3,6 @@ package presentation.search.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import domain.model.MediaType
-import domain.model.MoviesAndShows
 import domain.repository.MovieRepository
 import domain.utils.Result
 import kotlinx.coroutines.Job

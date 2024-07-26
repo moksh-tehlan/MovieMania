@@ -1,19 +1,13 @@
 package data.mappers
 
-import data.model.AggregatedCastDto
 import data.model.AggregatedResultDto
-import domain.model.AggregatedCast
+import domain.model.Cast
 
-fun AggregatedResultDto.toAggregatedCast(): AggregatedCast {
-    return AggregatedCast(
+fun AggregatedResultDto.toAggregatedCast(): Cast {
+    return Cast(
         id = id,
         name = name,
         profilePath = profilePath,
-        roles = roles.map { role ->
-            AggregatedCast.Role(
-                creditId = role.creditId,
-                character = role.character
-            )
-        }
+        character = roles.first().character,
     )
 }

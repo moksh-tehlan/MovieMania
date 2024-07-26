@@ -2,10 +2,9 @@ package data.repository
 
 import data.mappers.toAggregatedCast
 import data.mappers.toCast
-import data.mappers.toMovieDetails
-import data.mappers.toMovies
+import data.mappers.toMedia
+import data.mappers.toMediaDetails
 import data.mappers.toTvShowDetail
-import data.mappers.toTvShows
 import data.mappers.toWatchProvider
 import data.model.AggregatedCastDto
 import data.model.CastDto
@@ -15,12 +14,9 @@ import data.model.ProviderDto
 import data.model.TvShowDetailsDto
 import data.model.TvShowsDto
 import data.networking.get
-import domain.model.AggregatedCast
 import domain.model.Cast
-import domain.model.MovieDetails
-import domain.model.Movies
-import domain.model.TvShowDetail
-import domain.model.TvShows
+import domain.model.Media
+import domain.model.MediaDetails
 import domain.model.WatchProvider
 import domain.repository.MovieDetailsRepository
 import domain.utils.DataError
@@ -29,13 +25,13 @@ import domain.utils.map
 import io.ktor.client.HttpClient
 
 class MovieDetailsRepositoryImpl(
-    private val httpClient: HttpClient
+    private val httpClient: HttpClient,
 ) : MovieDetailsRepository {
-    override suspend fun getMovieDetails(movieId: String): Result<MovieDetails, DataError.Network> {
+    override suspend fun getMovieDetails(movieId: String): Result<MediaDetails, DataError.Network> {
         val result = httpClient.get<MovieDetailsDto>(
             route = "movie/$movieId",
         )
-        return result.map { it.toMovieDetails() }
+        return result.map { it.toMediaDetails() }
     }
 
     override suspend fun getMovieCast(movieId: String): Result<List<Cast>, DataError.Network> {
@@ -71,29 +67,29 @@ class MovieDetailsRepositoryImpl(
         }
     }
 
-    override suspend fun getRecommendedMovies(movieId: String): Result<List<Movies>, DataError.Network> {
+    override suspend fun getRecommendedMovies(movieId: String): Result<List<Media>, DataError.Network> {
         val result = httpClient.get<MoviesDto>(
             route = "movie/$movieId/recommendations",
         )
         return result.map { moviesDto ->
             moviesDto.results.map { moviesDtoList ->
-                moviesDtoList.toMovies()
+                moviesDtoList.toMedia()
             }
         }
     }
 
-    override suspend fun getTvRecommendedMovies(tvId: String): Result<List<TvShows>, DataError.Network> {
+    override suspend fun getTvRecommendedMovies(tvId: String): Result<List<Media>, DataError.Network> {
         val result = httpClient.get<TvShowsDto>(
             route = "tv/$tvId/recommendations",
         )
         return result.map { tvShowDto ->
             tvShowDto.results.map { tvShowDtoList ->
-                tvShowDtoList.toTvShows()
+                tvShowDtoList.toMedia()
             }
         }
     }
 
-    override suspend fun getTvShowDetails(tvId: String): Result<TvShowDetail, DataError.Network> {
+    override suspend fun getTvShowDetails(tvId: String): Result<MediaDetails, DataError.Network> {
         val result = httpClient.get<TvShowDetailsDto>(
             route = "tv/$tvId",
         )
@@ -102,7 +98,7 @@ class MovieDetailsRepositoryImpl(
         }
     }
 
-    override suspend fun getTvCast(tvId: String): Result<List<AggregatedCast>, DataError.Network> {
+    override suspend fun getTvCast(tvId: String): Result<List<Cast>, DataError.Network> {
         val result = httpClient.get<AggregatedCastDto>(
             route = "tv/$tvId/aggregate_credits",
         )

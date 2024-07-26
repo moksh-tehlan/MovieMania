@@ -32,7 +32,7 @@ data class TvResultDto(
     val overview: String,
     val popularity: Double,
     @SerialName("poster_path")
-    val posterPath: String,
+    val posterPath: String?=null,
     @SerialName("first_air_date")
     val firstAirDate: String,
     val name: String,

@@ -4,7 +4,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import domain.model.MediaType
-import domain.model.MoviesAndShows
 import domain.repository.MovieDetailsRepository
 import domain.utils.Result
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,60 +12,49 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import navigation.NavScreens.MovieDetailScreen.MOVIE_ID
 import navigation.NavScreens.MovieDetailScreen.TV_ID
+import utils.DataState
 
 class DetailScreenViewModel(
     private val movieDetailsRepository: MovieDetailsRepository,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
     private val _dataScreenState = MutableStateFlow(DetailScreenState())
     val dataScreenState = _dataScreenState.asStateFlow()
 
-    fun onAction(action: DetailScreenAction) {
-        when (action) {
-            is DetailScreenAction.ChangeSeason -> {
-                _dataScreenState.update {
-                    it.copy(selectedSeason = action.seasonNumber)
-                }
-            }
-        }
-    }
     init {
         val movieId = savedStateHandle.get<String>(MOVIE_ID)
         val tvId = savedStateHandle.get<String>(TV_ID)
-        println("movieId: $movieId")
-        println("tvId: $tvId")
-        if (movieId != null) {
+
+        val id = movieId ?: tvId
+        val mediaType =
+            if (movieId != null) MediaType.MOVIE else if (tvId != null) MediaType.TV else null
+
+        if (mediaType == null || id.isNullOrBlank()) {
             _dataScreenState.update {
-                it.copy(mediaType = MediaType.MOVIE)
+                it.copy(
+                    error = "Invalid Id :)"
+                )
             }
-            getMovieDetails(movieId)
-            getCast(movieId)
-            getRecommendedMovies(movieId)
-            getWatchProvider(movieId)
-        } else if(tvId != null){
-            _dataScreenState.update {
-                it.copy(mediaType = MediaType.TV)
-            }
-            getTvShowDetails(tvId)
-            getTvCast(tvId)
-            getTvWatchProvider(tvId)
-            getTvShowRecommendations(tvId)
-        }
-        else {
-            _dataScreenState.update {
-                it.copy(error = "Movie ID is null")
-            }
+        } else {
+            getMediaDetails(id, mediaType)
+            getCast(id, mediaType)
+            getRecommendedMedia(id, mediaType)
+            getWatchProvider(id, mediaType)
         }
     }
 
-    private fun getMovieDetails(movieId: String) {
+    private fun getMediaDetails(id: String, mediaType: MediaType) {
         viewModelScope.launch {
-            when (val result = movieDetailsRepository.getMovieDetails(movieId = movieId)) {
+            val result = when (mediaType) {
+                MediaType.MOVIE -> movieDetailsRepository.getMovieDetails(id)
+                MediaType.TV -> movieDetailsRepository.getTvShowDetails(id)
+            }
+            when (result) {
                 is Result.Success -> {
                     _dataScreenState.update {
                         it.copy(
-                            movieDetailState = DetailScreenState.DataState.Success(result.data)
+                            mediaDetails = DataState.Success(result.data)
                         )
                     }
                 }
@@ -82,15 +70,17 @@ class DetailScreenViewModel(
         }
     }
 
-    private fun getTvShowDetails(tvId: String) {
+    private fun getCast(id: String, mediaType: MediaType) {
         viewModelScope.launch {
-            when (val result = movieDetailsRepository.getTvShowDetails(tvId = tvId)) {
+            val result = when (mediaType) {
+                MediaType.MOVIE -> movieDetailsRepository.getMovieCast(id)
+                MediaType.TV -> movieDetailsRepository.getTvCast(id)
+            }
+            when (result) {
                 is Result.Success -> {
                     _dataScreenState.update {
                         it.copy(
-                            tvDetailState = DetailScreenState.DataState.Success(result.data.copy(
-                                seasons = result.data.seasons.filter { it.seasonNumber.toInt() != 0 }
-                            ))
+                            castState = DataState.Success(result.data)
                         )
                     }
                 }
@@ -106,13 +96,17 @@ class DetailScreenViewModel(
         }
     }
 
-    private fun getCast(movieId: String) {
+    private fun getRecommendedMedia(id: String, mediaType: MediaType) {
         viewModelScope.launch {
-            when (val result = movieDetailsRepository.getMovieCast(movieId = movieId)) {
+            val result = when (mediaType) {
+                MediaType.MOVIE -> movieDetailsRepository.getRecommendedMovies(id)
+                MediaType.TV -> movieDetailsRepository.getTvRecommendedMovies(id)
+            }
+            when (result) {
                 is Result.Success -> {
                     _dataScreenState.update {
                         it.copy(
-                            castState = DetailScreenState.DataState.Success(result.data)
+                            recommendedState = DataState.Success(result.data)
                         )
                     }
                 }
@@ -128,101 +122,17 @@ class DetailScreenViewModel(
         }
     }
 
-    private fun getRecommendedMovies(movieId: String) {
+    private fun getWatchProvider(id: String, mediaType: MediaType) {
         viewModelScope.launch {
-            when (val result = movieDetailsRepository.getRecommendedMovies(movieId = movieId)) {
-                is Result.Success -> {
-                    _dataScreenState.update {
-                        it.copy(
-                            recommendedMoviesState = DetailScreenState.DataState.Success(result.data)
-                        )
-                    }
-                }
-
-                is Result.Error -> {
-                    _dataScreenState.update {
-                        it.copy(
-                            error = result.error.name
-                        )
-                    }
-                }
+            val result = when (mediaType) {
+                MediaType.MOVIE -> movieDetailsRepository.getMovieWatchProvider(id)
+                MediaType.TV -> movieDetailsRepository.getTvWatchProvider(id)
             }
-        }
-    }
-
-    private fun getWatchProvider(movieId: String) {
-        viewModelScope.launch {
-            when (val result = movieDetailsRepository.getMovieWatchProvider(movieId = movieId)) {
+            when (result) {
                 is Result.Success -> {
                     _dataScreenState.update {
                         it.copy(
-                            watchProviderState = DetailScreenState.DataState.Success(result.data)
-                        )
-                    }
-                }
-
-                is Result.Error -> {
-                    _dataScreenState.update {
-                        it.copy(
-                            error = result.error.name
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    private fun getTvWatchProvider(tvId: String) {
-        viewModelScope.launch {
-            when (val result = movieDetailsRepository.getTvWatchProvider(tvId = tvId)) {
-                is Result.Success -> {
-                    _dataScreenState.update {
-                        it.copy(
-                            watchProviderState = DetailScreenState.DataState.Success(result.data)
-                        )
-                    }
-                }
-
-                is Result.Error -> {
-                    _dataScreenState.update {
-                        it.copy(
-                            error = result.error.name
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    private fun getTvShowRecommendations(tvId: String) {
-        viewModelScope.launch {
-            when (val result = movieDetailsRepository.getTvRecommendedMovies(tvId = tvId)) {
-                is Result.Success -> {
-                    _dataScreenState.update {
-                        it.copy(
-                            recommendedTvShowState = DetailScreenState.DataState.Success(result.data)
-                        )
-                    }
-                }
-
-                is Result.Error -> {
-                    _dataScreenState.update {
-                        it.copy(
-                            error = result.error.name
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    private fun getTvCast(tvId: String) {
-        viewModelScope.launch {
-            when (val result = movieDetailsRepository.getTvCast(tvId = tvId)) {
-                is Result.Success -> {
-                    _dataScreenState.update {
-                        it.copy(
-                            tvCastState = DetailScreenState.DataState.Success(result.data)
+                            watchProviderState = DataState.Success(result.data)
                         )
                     }
                 }

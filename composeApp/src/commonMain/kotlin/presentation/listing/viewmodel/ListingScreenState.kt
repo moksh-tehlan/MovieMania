@@ -1,14 +1,13 @@
 package presentation.listing.viewmodel
 
-import domain.model.Movies
-import domain.model.MoviesAndShows
-import domain.model.TvShows
+import domain.model.Media
+import utils.DataState
 
 data class ListingScreenState(
     val isLoading: Boolean = false,
-    val error: String? = null,
-    val trendingMovies: List<MoviesAndShows> = emptyList(),
-    val topRatedMovies: List<Movies> = emptyList(),
-    val popularMovies: List<Movies> = emptyList(),
-    val popularTvShows: List<TvShows> = emptyList()
+    val globalError: String? = null,
+    val trendingMovies: DataState<List<Media>> = DataState.Loading,
+    val topRatedMovies: DataState<List<Media>> = DataState.Loading,
+    val popularMovies: DataState<List<Media>> = DataState.Loading,
+    val popularTvShows: DataState<List<Media>> = DataState.Loading,
 )

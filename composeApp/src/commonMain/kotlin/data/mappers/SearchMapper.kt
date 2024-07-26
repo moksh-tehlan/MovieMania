@@ -1,29 +1,17 @@
 package data.mappers
 
 import data.model.SearchResultDto
+import domain.model.Media
 import domain.model.MediaType
-import domain.model.Search
 
-fun SearchResultDto.toSearch():Search{
-    return Search(
-        backdropPath = backdropPath,
+fun SearchResultDto.toMedia(): Media {
+    return Media(
+        backdropPath = backdropPath ?: "N/A",
         id = id,
-        title = title,
-        originalTitle = originalTitle,
-        overview = overview,
+        title = name ?: title ?: "N/A",
+        overview = overview ?: "N/A",
         posterPath = posterPath,
         mediaType = if (mediaType == "movie") MediaType.MOVIE else MediaType.TV,
-        adult = adult,
-        originalLanguage = originalLanguage,
-        genreIds = genreIds,
-        popularity = popularity,
-        releaseDate = releaseDate,
-        video = video,
-        voteAverage = voteAverage,
-        voteCount = voteCount,
-        name = name,
-        originalName = originalName,
-        firstAirDate = firstAirDate,
-        originCountry = originCountry
+        releaseDate = releaseDate ?: firstAirDate ?: "N/A"
     )
 }
