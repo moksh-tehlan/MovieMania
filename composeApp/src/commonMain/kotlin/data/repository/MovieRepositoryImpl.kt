@@ -1,8 +1,8 @@
 package data.repository
 
 import data.mappers.toMovies
+import data.mappers.toMoviesAndShows
 import data.mappers.toSearch
-import data.mappers.toTrending
 import data.mappers.toTvShows
 import data.model.MoviesAndShowsDto
 import data.model.MoviesDto
@@ -49,7 +49,7 @@ class MovieRepositoryImpl(
         )
         return result.map { trending ->
             trending.results.map { trendingList ->
-                trendingList.toTrending()
+                trendingList.toMoviesAndShows()
             }
         }
     }

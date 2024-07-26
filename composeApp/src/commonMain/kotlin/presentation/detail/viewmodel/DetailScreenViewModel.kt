@@ -3,6 +3,7 @@ package presentation.detail.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import domain.model.MediaType
 import domain.model.MoviesAndShows
 import domain.repository.MovieDetailsRepository
 import domain.utils.Result
@@ -37,7 +38,7 @@ class DetailScreenViewModel(
         println("tvId: $tvId")
         if (movieId != null) {
             _dataScreenState.update {
-                it.copy(mediaType = MoviesAndShows.MediaType.MOVIE)
+                it.copy(mediaType = MediaType.MOVIE)
             }
             getMovieDetails(movieId)
             getCast(movieId)
@@ -45,7 +46,7 @@ class DetailScreenViewModel(
             getWatchProvider(movieId)
         } else if(tvId != null){
             _dataScreenState.update {
-                it.copy(mediaType = MoviesAndShows.MediaType.TV)
+                it.copy(mediaType = MediaType.TV)
             }
             getTvShowDetails(tvId)
             getTvCast(tvId)

@@ -1,6 +1,7 @@
 package presentation.search
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,14 +34,15 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import domain.model.MoviesAndShows
+import domain.model.MediaType
 import domain.model.Search
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 import presentation.common.MovieNetworkImage
+import presentation.common.ObserveAsEvents
 import presentation.common.searchIcon
 import presentation.search.viewmodel.SearchScreenActions
+import presentation.search.viewmodel.SearchScreenEvents
 import presentation.search.viewmodel.SearchScreenState
 import presentation.search.viewmodel.SearchScreenViewModel
 import utils.MovieColor
@@ -48,8 +50,17 @@ import utils.MovieColor
 @OptIn(KoinExperimentalAPI::class)
 @Composable
 fun SearchScreen(
-    viewModel: SearchScreenViewModel = koinViewModel()
+    viewModel: SearchScreenViewModel = koinViewModel(),
+    onMovieClick: (String) -> Unit,
+    onTvShowClick: (String) -> Unit,
 ) {
+    ObserveAsEvents(viewModel.searchScreenEvents) {
+        when (it) {
+            is SearchScreenEvents.NavigateToMovieDetail -> onMovieClick(it.movieId)
+            is SearchScreenEvents.NavigateToTvDetail -> onTvShowClick(it.tvId)
+        }
+    }
+
     SearchScreenView(
         state = viewModel.searchScreenState.collectAsState().value,
         onAction = viewModel::onAction
@@ -59,7 +70,7 @@ fun SearchScreen(
 @Composable
 private fun SearchScreenView(
     state: SearchScreenState,
-    onAction: (SearchScreenActions) -> Unit
+    onAction: (SearchScreenActions) -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.statusBars)
@@ -69,7 +80,7 @@ private fun SearchScreenView(
             searchText = state.searchBox,
             onTextChange = { onAction(SearchScreenActions.SearchQuery(it)) }
         )
-        when{
+        when {
             state.isLoading -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -81,6 +92,7 @@ private fun SearchScreenView(
                     )
                 }
             }
+
             state.error != null -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -95,6 +107,7 @@ private fun SearchScreenView(
                     )
                 }
             }
+
             state.searchBox.isBlank() -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -109,6 +122,7 @@ private fun SearchScreenView(
                     )
                 }
             }
+
             state.searchResult.isEmpty() -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -123,6 +137,7 @@ private fun SearchScreenView(
                     )
                 }
             }
+
             else -> {
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth(),
@@ -130,7 +145,9 @@ private fun SearchScreenView(
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(state.searchResult) { searchResult ->
-                        ListingItem(searchResult = searchResult)
+                        ListingItem(searchResult = searchResult, onClick = {id, mediaType ->
+                            onAction(SearchScreenActions.OnCardClick(id,mediaType))
+                        })
                     }
                 }
             }
@@ -143,9 +160,11 @@ private fun SearchScreenView(
 private fun ListingItem(
     modifier: Modifier = Modifier,
     searchResult: Search,
+    onClick: (String, MediaType) -> Unit,
 ) {
     Row(
         modifier = modifier.fillMaxWidth().wrapContentHeight()
+            .clickable(onClick = { onClick(searchResult.id.toString(), searchResult.mediaType) })
     ) {
         MovieNetworkImage(
             modifier = Modifier.height(100.dp).aspectRatio(1 / 1.5f),
