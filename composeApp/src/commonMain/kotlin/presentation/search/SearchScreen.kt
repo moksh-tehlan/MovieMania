@@ -27,8 +27,13 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.TextStyle
@@ -41,6 +46,7 @@ import org.koin.core.annotation.KoinExperimentalAPI
 import presentation.common.MovieNetworkImage
 import presentation.common.ObserveAsEvents
 import presentation.common.searchIcon
+import presentation.common.shimmerEffect
 import presentation.search.viewmodel.SearchScreenActions
 import presentation.search.viewmodel.SearchScreenEvents
 import presentation.search.viewmodel.SearchScreenState
@@ -72,6 +78,7 @@ private fun SearchScreenView(
     state: SearchScreenState,
     onAction: (SearchScreenActions) -> Unit,
 ) {
+
     Column(
         modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.statusBars)
             .padding(top = 15.dp),
@@ -82,14 +89,27 @@ private fun SearchScreenView(
         )
         when {
             state.isLoading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(vertical = 10.dp, horizontal = 10.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(50.dp),
-                        color = Color.White
-                    )
+                    items(20) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().wrapContentHeight()
+                        ) {
+                            Box(
+                                modifier = Modifier.height(100.dp).aspectRatio(1 / 1.5f).shimmerEffect()
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column {
+                                Box(Modifier.height(10.dp).width(100.dp).shimmerEffect())
+                                Spacer(Modifier.height(5.dp))
+                                Box(Modifier.height(10.dp).width(100.dp).shimmerEffect())
+                            }
+                        }
+
+                    }
                 }
             }
 
@@ -145,8 +165,8 @@ private fun SearchScreenView(
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(state.searchResult) { searchResult ->
-                        ListingItem(searchResult = searchResult, onClick = {id, mediaType ->
-                            onAction(SearchScreenActions.OnCardClick(id,mediaType))
+                        ListingItem(searchResult = searchResult, onClick = { id, mediaType ->
+                            onAction(SearchScreenActions.OnCardClick(id, mediaType))
                         })
                     }
                 }
@@ -187,14 +207,6 @@ private fun ListingItem(
                     color = Color.White.copy(.2f)
                 )
             )
-            /*Spacer(Modifier.height(5.dp))
-            Text(
-                text = searchResult.,
-                style = TextStyle(
-                    fontSize = 12.sp,
-                    color = Color.White.copy(.2f)
-                )
-            )*/
         }
     }
 }

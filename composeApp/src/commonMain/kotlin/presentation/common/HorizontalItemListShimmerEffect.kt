@@ -16,7 +16,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun HorizontalItemListShimmerEffect() {
+fun HorizontalItemListShimmerEffect(
+    item: @Composable () -> Unit,
+) {
     Column {
         Box(
             modifier = Modifier.padding(start = 15.dp).width(200.dp).height(20.dp).shimmerEffect(),
@@ -28,7 +30,7 @@ fun HorizontalItemListShimmerEffect() {
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             items(5) {
-                MediaItemShimmerEffect()
+                item()
             }
         }
     }

@@ -37,12 +37,16 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.core.parameter.ParametersHolder
 import presentation.common.HorizontalItemList
+import presentation.common.HorizontalItemListShimmerEffect
 import presentation.common.MediaItem
+import presentation.common.MediaItemShimmerEffect
 import presentation.common.MovieNetworkImage
 import presentation.common.ratingIcon
+import presentation.common.shimmerEffect
 import presentation.common.thumbsUpIcon
 import presentation.common.timerIcon
 import presentation.detail.components.GenresTile
+import presentation.detail.components.MediaDetailShimmerEffect
 import presentation.detail.components.StatItem
 import presentation.detail.viewmodel.DetailScreenState
 import presentation.detail.viewmodel.DetailScreenViewModel
@@ -86,6 +90,9 @@ private fun DetailScreenView(
             // movie detail data
             DataStateView(
                 state = state.mediaDetails,
+                loadingContent = {
+                    state.mediaType?.let { it1 -> MediaDetailShimmerEffect(mediaType = it1) }
+                }
             ) { mediaDetail ->
                 Box(modifier = Modifier.fillMaxWidth().height(335.dp)) {
                     MovieNetworkImage(
@@ -196,22 +203,43 @@ private fun DetailScreenView(
                 }
             }
 
-            DataStateView(
-                state = state.watchProviderState,
-            ) { watchProviders ->
-                Spacer(Modifier.height(25.dp))
-                HorizontalItemList(
-                    title = "Watch Providers",
-                    itemList = watchProviders
-                ) { provider ->
-                    WatchProvider(
-                        logo = provider.logoPath
-                    )
+            if (state.mediaType == MediaType.TV) {
+                DataStateView(
+                    state = state.watchProviderState,
+                    loadingContent = {
+                        Spacer(Modifier.height(25.dp))
+                        HorizontalItemListShimmerEffect(
+                            item = {
+                                Box(
+                                    Modifier.height(50.dp).aspectRatio(1f)
+                                        .clip(RoundedCornerShape(5.dp)).shimmerEffect()
+                                )
+                            }
+                        )
+                    }
+                ) { watchProviders ->
+                    Spacer(Modifier.height(25.dp))
+                    HorizontalItemList(
+                        title = "Watch Providers",
+                        itemList = watchProviders
+                    ) { provider ->
+                        WatchProvider(
+                            logo = provider.logoPath
+                        )
+                    }
                 }
             }
 
             // cast data
-            DataStateView(state = state.castState) { castList ->
+            DataStateView(
+                state = state.castState,
+                loadingContent = {
+                    Spacer(Modifier.height(25.dp))
+                    HorizontalItemListShimmerEffect(
+                        item = { MediaItemShimmerEffect() }
+                    )
+                },
+            ) { castList ->
                 Spacer(Modifier.height(25.dp))
                 HorizontalItemList(
                     title = "Cast",
@@ -229,6 +257,12 @@ private fun DetailScreenView(
             // recommended
             DataStateView(
                 state = state.recommendedState,
+                loadingContent = {
+                    Spacer(Modifier.height(25.dp))
+                    HorizontalItemListShimmerEffect(
+                        item = { MediaItemShimmerEffect() }
+                    )
+                }
             ) { movieList ->
                 Spacer(Modifier.height(25.dp))
                 HorizontalItemList(

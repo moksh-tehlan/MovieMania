@@ -37,6 +37,11 @@ class DetailScreenViewModel(
                 )
             }
         } else {
+            _dataScreenState.update {
+                it.copy(
+                    mediaType = mediaType
+                )
+            }
             getMediaDetails(id, mediaType)
             getCast(id, mediaType)
             getRecommendedMedia(id, mediaType)
