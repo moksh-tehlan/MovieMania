@@ -16,6 +16,7 @@ import presentation.common.BackDropShimmerEffect
 import presentation.common.HorizontalItemList
 import presentation.common.HorizontalItemListShimmerEffect
 import presentation.common.MediaItem
+import presentation.common.MediaItemShimmerEffect
 import presentation.common.ObserveAsEvents
 import presentation.listing.components.HomeCarousel
 import presentation.listing.viewmodel.ListingScreenActions
@@ -74,7 +75,9 @@ private fun ListingScreenView(
             state = state.topRatedMovies,
             loadingContent = {
                 Spacer(modifier = Modifier.height(20.dp))
-                HorizontalItemListShimmerEffect()
+                HorizontalItemListShimmerEffect(
+                    item = { MediaItemShimmerEffect() }
+                )
             }
         ) {
             Spacer(modifier = Modifier.height(20.dp))
@@ -95,7 +98,9 @@ private fun ListingScreenView(
             state = state.popularMovies,
             loadingContent = {
                 Spacer(modifier = Modifier.height(20.dp))
-                HorizontalItemListShimmerEffect()
+                HorizontalItemListShimmerEffect(
+                    item = { MediaItemShimmerEffect() }
+                )
             }
         ) { popularMovies ->
             Spacer(modifier = Modifier.height(20.dp))
@@ -116,7 +121,9 @@ private fun ListingScreenView(
             state = state.popularTvShows,
             loadingContent = {
                 Spacer(modifier = Modifier.height(20.dp))
-                HorizontalItemListShimmerEffect()
+                HorizontalItemListShimmerEffect(
+                    item = { MediaItemShimmerEffect() }
+                )
             }
         ) {
             Spacer(modifier = Modifier.height(20.dp))

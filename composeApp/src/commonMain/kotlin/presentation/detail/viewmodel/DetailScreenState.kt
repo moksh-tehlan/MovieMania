@@ -12,5 +12,6 @@ data class DetailScreenState(
     val recommendedState: DataState<List<Media>> = DataState.Loading,
     val castState: DataState<List<Cast>> = DataState.Loading,
     val watchProviderState: DataState<List<WatchProvider>> = DataState.Loading,
+    val mediaType: MediaType?=null,
     val error: String? = null,
 )

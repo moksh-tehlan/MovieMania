@@ -54,7 +54,8 @@ class SearchScreenViewModel(
     private fun changeSearchText(query: String) {
         _searchScreenState.update {
             it.copy(
-                searchBox = query
+                searchBox = query,
+                isLoading = true
             )
         }
         searchJob?.cancel()
@@ -72,11 +73,6 @@ class SearchScreenViewModel(
 
         viewModelScope.launch {
             delay(1000)
-            _searchScreenState.update {
-                it.copy(
-                    isLoading = _searchScreenState.value.searchResult.isEmpty()
-                )
-            }
             when (val result = movieRepository.searchQuery(query)) {
                 is Result.Success -> {
                     _searchScreenState.update {
