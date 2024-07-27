@@ -5,9 +5,10 @@ import data.repository.MovieDetailsRepositoryImpl
 import data.repository.MovieRepositoryImpl
 import domain.repository.MovieDetailsRepository
 import domain.repository.MovieRepository
-import org.koin.compose.viewmodel.dsl.viewModelOf
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.module.dsl.viewModel
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import presentation.detail.viewmodel.DetailScreenViewModel
