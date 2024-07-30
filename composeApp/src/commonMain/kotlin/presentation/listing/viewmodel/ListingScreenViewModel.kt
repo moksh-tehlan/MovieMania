@@ -2,20 +2,24 @@ package presentation.listing.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import data.dao.MediaDao
+import data.entity.MediaEntity
+import domain.model.Media
 import domain.model.MediaType
 import domain.repository.MovieRepository
 import domain.utils.Result
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import utils.DataState
 
 class ListingScreenViewModel(
-    private val movieRepository: MovieRepository
+    private val movieRepository: MovieRepository,
+    private val movieDao: MediaDao,
 ) : ViewModel() {
 
     private val _listingScreenState = MutableStateFlow(ListingScreenState())
@@ -34,7 +38,11 @@ class ListingScreenViewModel(
     fun onAction(listingScreenAction: ListingScreenActions) {
         when (listingScreenAction) {
             is ListingScreenActions.OnMovieClick -> onMovieClick(listingScreenAction.movieId)
-            is ListingScreenActions.OnCarousalClick -> onCarousalClick(listingScreenAction.id, listingScreenAction.mediaType)
+            is ListingScreenActions.OnCarousalClick -> onCarousalClick(
+                listingScreenAction.id,
+                listingScreenAction.mediaType
+            )
+
             is ListingScreenActions.OnTvShowClick -> onTvShowClick(listingScreenAction.tvId)
         }
     }
@@ -43,7 +51,7 @@ class ListingScreenViewModel(
         viewModelScope.launch { _listingScreenEvents.emit(ListingScreenEvent.OnTvShowClick(tvId)) }
     }
 
-    private fun onCarousalClick(id:String,mediaType: MediaType) {
+    private fun onCarousalClick(id: String, mediaType: MediaType) {
         if (mediaType == MediaType.MOVIE) {
             onMovieClick(id)
         } else {
