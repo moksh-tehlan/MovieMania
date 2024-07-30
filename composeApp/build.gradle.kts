@@ -9,6 +9,8 @@ plugins {
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.room)
 }
 
 
@@ -32,6 +34,9 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
+
+            // Required when using NativeSQLiteDriver
+            linkerOpts.add("-lsqlite3")
         }
     }
 
@@ -76,6 +81,10 @@ kotlin {
             implementation(libs.navigation.compose)
 
             implementation(libs.napier)
+
+            implementation(libs.room.runtime)
+            implementation(libs.sqlite.bundled)
+
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -147,4 +156,13 @@ compose.desktop {
             packageVersion = "1.0.0"
         }
     }
+}
+
+dependencies {
+    // Room
+    add("kspAndroid", libs.room.compiler)
+}
+
+room{
+    schemaDirectory("$projectDir/schemas")
 }

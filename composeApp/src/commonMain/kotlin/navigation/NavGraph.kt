@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -26,6 +24,7 @@ import androidx.navigation.navArgument
 import navigation.NavScreens.MovieDetailScreen.MOVIE_ID
 import navigation.NavScreens.MovieDetailScreen.TV_ID
 import org.koin.core.parameter.parametersOf
+import presentation.bookmark.BookmarkScreen
 import presentation.detail.DetailScreen
 import presentation.home.HomeScreen
 import presentation.listing.ListingScreen
@@ -175,9 +174,24 @@ fun HomeScreenGraph(
             )
         }
         composable(route = HomeNavScreens.BookmarksScreen.route) {
-            Box(Modifier.fillMaxSize()) {
-                Text("Bookmarks Screen", style = MaterialTheme.typography.h2)
-            }
+            BookmarkScreen(
+                onMovieClick = {
+                    rootNavController.navigate(
+                        route = NavScreens.MovieDetailScreen,
+                        queryParams = mapOf(
+                            MOVIE_ID to it
+                        )
+                    )
+                },
+                onTvShowClick = {
+                    rootNavController.navigate(
+                        route = NavScreens.MovieDetailScreen,
+                        queryParams = mapOf(
+                            TV_ID to it
+                        )
+                    )
+                }
+            )
         }
     }
 }
