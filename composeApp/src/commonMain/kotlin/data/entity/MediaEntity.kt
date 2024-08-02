@@ -18,4 +18,6 @@ data class MediaEntity(
     val id: Long,
     @ColumnInfo(name = "media_type")
     val mediaType: String,
+    @ColumnInfo(name = "is_bookmarked")
+    val isBookmarked: Boolean,
 )

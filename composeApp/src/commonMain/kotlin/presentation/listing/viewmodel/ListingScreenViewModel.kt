@@ -3,7 +3,7 @@ package presentation.listing.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import data.dao.MediaDao
-import data.entity.MediaEntity
+import data.mappers.toMediaEntity
 import domain.model.Media
 import domain.model.MediaType
 import domain.repository.MovieRepository
@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import utils.DataState
@@ -28,13 +27,6 @@ class ListingScreenViewModel(
     private val _listingScreenEvents = MutableSharedFlow<ListingScreenEvent>()
     val listingScreenEvents = _listingScreenEvents.asSharedFlow()
 
-    init {
-        getTrendingMoviesAndShows()
-        getPopularMovies()
-        getPopularTvShows()
-        getTopRatedMovies()
-    }
-
     fun onAction(listingScreenAction: ListingScreenActions) {
         when (listingScreenAction) {
             is ListingScreenActions.OnMovieClick -> onMovieClick(listingScreenAction.movieId)
@@ -44,7 +36,20 @@ class ListingScreenViewModel(
             )
 
             is ListingScreenActions.OnTvShowClick -> onTvShowClick(listingScreenAction.tvId)
+            is ListingScreenActions.OnBookmark -> onBookmark(
+                listingScreenAction.mediaItem,
+                listingScreenAction.listingType
+            )
+
+            is ListingScreenActions.GetListing -> getListing()
         }
+    }
+
+    private fun getListing(){
+        getTrendingMoviesAndShows()
+        getPopularMovies()
+        getPopularTvShows()
+        getTopRatedMovies()
     }
 
     private fun onTvShowClick(tvId: String) {
@@ -77,13 +82,14 @@ class ListingScreenViewModel(
                 is Result.Success -> {
                     _listingScreenState.update {
                         it.copy(
-                            popularMovies = DataState.Success(result.data)
+                            popularMovies = DataState.Success(result.data.map { movie ->
+                                movie.copy(isBookmarked = movieDao.mediaExists(movie.id))
+                            })
                         )
                     }
                 }
             }
         }
-
     }
 
     private fun getTrendingMoviesAndShows() {
@@ -122,7 +128,9 @@ class ListingScreenViewModel(
                 is Result.Success -> {
                     _listingScreenState.update {
                         it.copy(
-                            popularTvShows = DataState.Success(result.data)
+                            popularTvShows = DataState.Success(result.data.map { tvShoww ->
+                                tvShoww.copy(isBookmarked = movieDao.mediaExists(tvShoww.id))
+                            })
                         )
                     }
                 }
@@ -144,7 +152,9 @@ class ListingScreenViewModel(
                 is Result.Success -> {
                     _listingScreenState.update {
                         it.copy(
-                            topRatedMovies = DataState.Success(result.data)
+                            topRatedMovies = DataState.Success(result.data.map { movie ->
+                                movie.copy(isBookmarked = movieDao.mediaExists(movie.id))
+                            })
                         )
                     }
                 }
@@ -152,4 +162,124 @@ class ListingScreenViewModel(
         }
     }
 
+    private fun onBookmark(mediaItem: Media, listingType: ListingType) {
+        if (mediaItem.isBookmarked) {
+            onRemoveFromBookmark(mediaItem.id, listingType)
+            return
+        }
+        viewModelScope.launch {
+            movieDao.insertMedia(mediaItem.toMediaEntity().copy(isBookmarked = true))
+            when (listingType) {
+                ListingType.TOP_RATED_MOVIES -> {
+                    _listingScreenState.update {
+                        val list = it.topRatedMovies as DataState.Success<List<Media>>
+                        it.copy(
+                            topRatedMovies = DataState.Success(
+                                list.data.map { media ->
+                                    if (media.id == mediaItem.id) {
+                                        media.copy(isBookmarked = true)
+                                    } else {
+                                        media
+                                    }
+                                }
+                            )
+                        )
+                    }
+                }
+
+                ListingType.POPULAR_MOVIES -> {
+                    _listingScreenState.update {
+                        val list = it.popularMovies as DataState.Success<List<Media>>
+                        it.copy(
+                            popularMovies = DataState.Success(
+                                list.data.map { media ->
+                                    if (media.id == mediaItem.id) {
+                                        media.copy(isBookmarked = true)
+                                    } else {
+                                        media
+                                    }
+                                }
+                            )
+                        )
+                    }
+                }
+
+                ListingType.POPULAR_TV_SHOWS -> {
+                    _listingScreenState.update {
+                        val list = it.popularTvShows as DataState.Success<List<Media>>
+                        it.copy(
+                            popularTvShows = DataState.Success(
+                                list.data.map { media ->
+                                    if (media.id == mediaItem.id) {
+                                        media.copy(isBookmarked = true)
+                                    } else {
+                                        media
+                                    }
+                                }
+                            )
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun onRemoveFromBookmark(id: Long,listingType: ListingType) {
+        viewModelScope.launch {
+            movieDao.deleteMedia(id)
+            when (listingType) {
+                ListingType.TOP_RATED_MOVIES -> {
+                    _listingScreenState.update {
+                        val list = it.topRatedMovies as DataState.Success<List<Media>>
+                        it.copy(
+                            topRatedMovies = DataState.Success(
+                                list.data.map { media ->
+                                    if (media.id == id) {
+                                        media.copy(isBookmarked = false)
+                                    } else {
+                                        media
+                                    }
+                                }
+                            )
+                        )
+                    }
+                }
+
+                ListingType.POPULAR_MOVIES -> {
+                    _listingScreenState.update {
+                        val list = it.popularMovies as DataState.Success<List<Media>>
+                        it.copy(
+                            popularMovies = DataState.Success(
+                                list.data.map { media ->
+                                    if (media.id == id) {
+                                        media.copy(isBookmarked = false)
+                                    } else {
+                                        media
+                                    }
+                                }
+                            )
+                        )
+                    }
+                }
+
+                ListingType.POPULAR_TV_SHOWS -> {
+                    _listingScreenState.update {
+                        val list = it.popularTvShows as DataState.Success<List<Media>>
+                        it.copy(
+                            popularTvShows = DataState.Success(
+                                list.data.map { media ->
+                                    if (media.id == id) {
+                                        media.copy(isBookmarked = false)
+                                    } else {
+                                        media
+                                    }
+                                }
+                            )
+                        )
+                    }
+                }
+            }
+        }
+
+    }
 }

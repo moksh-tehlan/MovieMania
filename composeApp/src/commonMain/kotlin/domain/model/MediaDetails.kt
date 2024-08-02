@@ -11,6 +11,7 @@ data class MediaDetails(
     val popularity: Double,
     val runtime: String?,
     val id: Long,
+    val isBookmarked:Boolean = false,
     val mediaType: MediaType,
     val genres: List<Genre>,
     val seasons : List<TvShowSeason> = emptyList(),

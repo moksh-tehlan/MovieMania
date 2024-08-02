@@ -11,3 +11,8 @@ data class ListingScreenState(
     val popularMovies: DataState<List<Media>> = DataState.Loading,
     val popularTvShows: DataState<List<Media>> = DataState.Loading,
 )
+enum class ListingType{
+    TOP_RATED_MOVIES,
+    POPULAR_MOVIES,
+    POPULAR_TV_SHOWS
+}

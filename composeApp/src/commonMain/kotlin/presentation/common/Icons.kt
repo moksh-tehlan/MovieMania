@@ -3,6 +3,8 @@ package presentation.common
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
 import moviemania.composeapp.generated.resources.Res
+import moviemania.composeapp.generated.resources.bookmark_add_icon
+import moviemania.composeapp.generated.resources.bookmark_check_icon
 import moviemania.composeapp.generated.resources.bookmark_icon
 import moviemania.composeapp.generated.resources.movie_icon
 import moviemania.composeapp.generated.resources.rating_icon
@@ -34,3 +36,11 @@ val thumbsUpIcon: Painter
 val timerIcon: Painter
     @Composable
     get() = painterResource(Res.drawable.time_icon)
+
+val bookmarkAddIcon: Painter
+    @Composable
+    get() = painterResource(Res.drawable.bookmark_add_icon)
+
+val bookmarkAddedIcon: Painter
+    @Composable
+    get() = painterResource(Res.drawable.bookmark_check_icon )
