@@ -26,6 +26,7 @@ fun MovieNetworkImage(modifier: Modifier = Modifier, url: String?) {
                 modifier = Modifier.fillMaxSize().background(MovieColor.veryLightGray.copy(.12f)),
             )
         },
+        onSuccess = {},
         contentDescription = "Movie Image",
     )
 }

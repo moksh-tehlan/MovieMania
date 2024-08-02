@@ -2,6 +2,7 @@ package presentation.common
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -13,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -26,6 +28,9 @@ fun MediaItem(
     posterPath: String?,
     title: String,
     subtitle: String,
+    showBookMark: Boolean = true,
+    isBookmarked: Boolean = false,
+    onBookmarkClick: () -> Unit,
     onClick: () -> Unit,
 ) {
     Column(
@@ -35,12 +40,16 @@ fun MediaItem(
             .background(color = MovieColor.CharcoalLight)
             .clickable(onClick = onClick)
     ) {
-        MovieNetworkImage(
-            modifier = Modifier
-                .height(200.dp)
-                .aspectRatio(1f / 1.5f),
-            url = posterPath
-        )
+        Box {
+            MovieNetworkImage(
+                modifier = Modifier
+                    .height(200.dp)
+                    .aspectRatio(1f / 1.5f),
+                url = posterPath
+            )
+            if (showBookMark)
+            BookmarkIcon(modifier = Modifier.align(Alignment.TopStart),isBookmarked = isBookmarked, onBookmarkClick = onBookmarkClick)
+        }
         Spacer(modifier = Modifier.height(10.dp))
         Text(
             modifier = Modifier

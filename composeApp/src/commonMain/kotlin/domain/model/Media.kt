@@ -8,4 +8,5 @@ data class Media(
     val releaseDate: String,
     val id: Long,
     val mediaType: MediaType,
+    val isBookmarked: Boolean = false,
 )

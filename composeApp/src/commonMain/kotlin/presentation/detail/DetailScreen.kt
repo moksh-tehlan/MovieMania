@@ -1,5 +1,7 @@
 package presentation.detail
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +22,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
@@ -41,6 +44,8 @@ import presentation.common.HorizontalItemListShimmerEffect
 import presentation.common.MediaItem
 import presentation.common.MediaItemShimmerEffect
 import presentation.common.MovieNetworkImage
+import presentation.common.bookmarkAddIcon
+import presentation.common.bookmarkAddedIcon
 import presentation.common.ratingIcon
 import presentation.common.shimmerEffect
 import presentation.common.thumbsUpIcon
@@ -48,6 +53,7 @@ import presentation.common.timerIcon
 import presentation.detail.components.GenresTile
 import presentation.detail.components.MediaDetailShimmerEffect
 import presentation.detail.components.StatItem
+import presentation.detail.viewmodel.DetailScreenActions
 import presentation.detail.viewmodel.DetailScreenState
 import presentation.detail.viewmodel.DetailScreenViewModel
 import utils.DataStateView
@@ -64,6 +70,7 @@ fun DetailScreen(
     val state = viewModel.dataScreenState.collectAsState().value
     DetailScreenView(
         state = state,
+        onAction = viewModel::onAction,
         onMediaClick = { id, mediaType ->
             if (mediaType == MediaType.MOVIE) {
                 onMovieClick(id)
@@ -77,6 +84,7 @@ fun DetailScreen(
 @Composable
 private fun DetailScreenView(
     state: DetailScreenState,
+    onAction: (DetailScreenActions) -> Unit,
     onMediaClick: (String, MediaType) -> Unit,
 ) {
     val scrollState = rememberScrollState()
@@ -131,6 +139,27 @@ private fun DetailScreenView(
                     }
                 }
                 Spacer(Modifier.height(25.dp))
+                Box(
+                    Modifier.fillMaxWidth().padding(horizontal = 15.dp)
+                        .height(50.dp)
+                        .background(
+                            if (mediaDetail.isBookmarked) Color.Yellow else Color.White.copy(
+                                .35f
+                            )
+                        )
+                        .clip(RoundedCornerShape(5))
+                        .clickable {
+                            onAction(DetailScreenActions.OnBookmarkMediaDetails(mediaDetail))
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        if (mediaDetail.isBookmarked) bookmarkAddedIcon else bookmarkAddIcon,
+                        contentDescription = "Bookmark",
+                        tint = if (mediaDetail.isBookmarked) Color.Black else Color.White
+                    )
+                }
+                Spacer(Modifier.height(25.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(start = 15.dp, end = 15.dp),
                     verticalAlignment = Alignment.Top,
@@ -181,8 +210,8 @@ private fun DetailScreenView(
                     Spacer(Modifier.height(25.dp))
                     HorizontalItemList(
                         title = "Seasons ${mediaDetail.seasons.size}",
-                        itemList = mediaDetail.seasons
-                    ) { season ->
+                        itemList = mediaDetail.seasons,
+                    ) { season, count ->
                         Column(
                             horizontalAlignment = Alignment.Start,
                         ) {
@@ -191,7 +220,7 @@ private fun DetailScreenView(
                                 url = season.posterPath
                             )
                             Text(
-                                text = season.name,
+                                text = "Season ${count + 1}",
                                 color = Color.White,
                             )
                             Text(
@@ -249,6 +278,8 @@ private fun DetailScreenView(
                         posterPath = cast.profilePath,
                         title = cast.name,
                         subtitle = cast.character,
+                        showBookMark = false,
+                        onBookmarkClick = {},
                         onClick = { }
                     )
                 }
@@ -273,6 +304,10 @@ private fun DetailScreenView(
                         posterPath = movie.posterPath,
                         title = movie.title,
                         subtitle = movie.releaseDate,
+                        isBookmarked = movie.isBookmarked,
+                        onBookmarkClick = {
+                            onAction(DetailScreenActions.OnBookmarkMedia(movie))
+                        },
                         onClick = { onMediaClick(movie.id.toString(), movie.mediaType) }
                     )
                 }
@@ -280,8 +315,6 @@ private fun DetailScreenView(
 
         }
     }
-
-
 }
 
 @Composable

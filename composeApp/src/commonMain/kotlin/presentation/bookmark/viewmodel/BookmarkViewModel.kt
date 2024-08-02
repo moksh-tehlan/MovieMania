@@ -3,8 +3,7 @@ package presentation.bookmark.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import data.dao.MediaDao
-import domain.model.Media
-import domain.model.MediaType
+import data.mappers.toMedia
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -28,6 +27,7 @@ class BookmarkViewModel(
         when (bookmarkActions) {
             is BookmarkActions.OnMovieClick -> onMovieClick(bookmarkActions.movieId)
             is BookmarkActions.OnTvShowClick -> onTvShowClick(bookmarkActions.tvId)
+            is BookmarkActions.RemoveBookmark -> onRemoveBookmark(bookmarkActions.id)
         }
     }
 
@@ -38,41 +38,16 @@ class BookmarkViewModel(
     private fun getBookMark() {
         viewModelScope.launch {
             mediaDao.getAllMedia().collectLatest { mediaList ->
-                println("MediaList: ${mediaList}")
                 _bookmarkState.update {
                     it.copy(
-                        movies = DataState.Success(data = mediaList.filter { it.mediaType == "MOVIE" }.also {
-                            println("MediaMovieList: ${it}")
-                        }
+                        isEmpty = mediaList.isEmpty(),
+                        movies = DataState.Success(data = mediaList.filter {movie-> movie.mediaType == "MOVIE" }
                             .map { mediaEntity ->
-                                Media(
-                                    id = mediaEntity.id,
-                                    title = mediaEntity.title,
-                                    posterPath = mediaEntity.posterPath,
-                                    releaseDate = mediaEntity.releaseDate,
-                                    mediaType = MediaType.MOVIE,
-                                    overview = mediaEntity.overview,
-                                    backdropPath = mediaEntity.backdropPath
-                                )
-                            }.also {
-                                println("Movies: ${it}")
+                                mediaEntity.toMedia()
                             }),
-                        tvShows = DataState.Success(data = mediaList.filter { it.mediaType == "TV" }
-                            .also {
-                                println("MediaTvList: ${it}")
-                            }
+                        tvShows = DataState.Success(data = mediaList.filter {tvShow -> tvShow.mediaType == "TV" }
                             .map { mediaEntity ->
-                                Media(
-                                    id = mediaEntity.id,
-                                    title = mediaEntity.title,
-                                    posterPath = mediaEntity.posterPath,
-                                    releaseDate = mediaEntity.releaseDate,
-                                    mediaType = MediaType.TV,
-                                    overview = mediaEntity.overview,
-                                    backdropPath = mediaEntity.backdropPath
-                                )
-                            }.also {
-                                println("TvShows: ${it}")
+                                mediaEntity.toMedia()
                             })
                     )
                 }
@@ -89,6 +64,12 @@ class BookmarkViewModel(
     private fun onMovieClick(movieId: String) {
         viewModelScope.launch {
             _bookmarkEvent.emit(BookmarkEvent.OnMovieClick(movieId))
+        }
+    }
+
+    private fun onRemoveBookmark(id:Long){
+        viewModelScope.launch {
+            mediaDao.deleteMedia(id)
         }
     }
 }

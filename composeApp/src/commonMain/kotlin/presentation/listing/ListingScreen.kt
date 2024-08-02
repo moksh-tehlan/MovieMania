@@ -7,8 +7,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -23,15 +25,19 @@ import presentation.listing.viewmodel.ListingScreenActions
 import presentation.listing.viewmodel.ListingScreenEvent
 import presentation.listing.viewmodel.ListingScreenState
 import presentation.listing.viewmodel.ListingScreenViewModel
+import presentation.listing.viewmodel.ListingType
 import utils.DataStateView
 
-@OptIn(KoinExperimentalAPI::class)
 @Composable
 fun ListingScreen(
     viewModel: ListingScreenViewModel = koinViewModel(),
     onMovieClick: (String) -> Unit,
     onTvShowClick: (String) -> Unit,
 ) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(Unit,lifecycleOwner.lifecycle){
+        viewModel.onAction(ListingScreenActions.GetListing)
+    }
     ObserveAsEvents(viewModel.listingScreenEvents) {
         when (it) {
             is ListingScreenEvent.OnMovieClick -> {
@@ -89,6 +95,9 @@ private fun ListingScreenView(
                     posterPath = movie.posterPath,
                     title = movie.title,
                     subtitle = movie.releaseDate,
+                    isBookmarked = movie.isBookmarked,
+                    onBookmarkClick = {
+                        onAction(ListingScreenActions.OnBookmark(movie,ListingType.TOP_RATED_MOVIES))},
                     onClick = { onAction(ListingScreenActions.OnMovieClick(movie.id.toString())) }
                 )
             }
@@ -112,6 +121,8 @@ private fun ListingScreenView(
                     posterPath = movie.posterPath,
                     title = movie.title,
                     subtitle = movie.releaseDate,
+                    isBookmarked = movie.isBookmarked,
+                    onBookmarkClick = {onAction(ListingScreenActions.OnBookmark(movie,ListingType.POPULAR_MOVIES))},
                     onClick = { onAction(ListingScreenActions.OnMovieClick(movie.id.toString())) }
                 )
             }
@@ -135,6 +146,8 @@ private fun ListingScreenView(
                     posterPath = tvShow.posterPath,
                     title = tvShow.title,
                     subtitle = tvShow.releaseDate,
+                    isBookmarked = tvShow.isBookmarked,
+                    onBookmarkClick = {onAction(ListingScreenActions.OnBookmark(tvShow,ListingType.POPULAR_TV_SHOWS))},
                     onClick = { onAction(ListingScreenActions.OnTvShowClick(tvShow.id.toString())) }
                 )
             }

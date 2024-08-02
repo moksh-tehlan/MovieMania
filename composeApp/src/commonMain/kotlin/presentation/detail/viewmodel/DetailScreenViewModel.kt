@@ -3,6 +3,10 @@ package presentation.detail.viewmodel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import data.dao.MediaDao
+import data.mappers.toMediaEntity
+import domain.model.Media
+import domain.model.MediaDetails
 import domain.model.MediaType
 import domain.repository.MovieDetailsRepository
 import domain.utils.Result
@@ -16,6 +20,7 @@ import utils.DataState
 
 class DetailScreenViewModel(
     private val movieDetailsRepository: MovieDetailsRepository,
+    private val mediaDao: MediaDao,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -49,6 +54,13 @@ class DetailScreenViewModel(
         }
     }
 
+    fun onAction(action: DetailScreenActions) {
+        when (action) {
+            is DetailScreenActions.OnBookmarkMediaDetails -> onBookmarkMediaDetails(action.mediaDetails)
+            is DetailScreenActions.OnBookmarkMedia -> onBookmarkMedia(action.media)
+        }
+    }
+
     private fun getMediaDetails(id: String, mediaType: MediaType) {
         viewModelScope.launch {
             val result = when (mediaType) {
@@ -57,9 +69,18 @@ class DetailScreenViewModel(
             }
             when (result) {
                 is Result.Success -> {
+                    val mediaDetails = if (result.data.seasons.isNotEmpty()) {
+                        result.data.copy(seasons = result.data.seasons.drop(1))
+                    } else {
+                        result.data
+                    }
                     _dataScreenState.update {
                         it.copy(
-                            mediaDetails = DataState.Success(result.data)
+                            mediaDetails = DataState.Success(
+                                mediaDetails.copy(
+                                    isBookmarked = mediaDao.mediaExists(mediaDetails.id)
+                                )
+                            )
                         )
                     }
                 }
@@ -111,7 +132,11 @@ class DetailScreenViewModel(
                 is Result.Success -> {
                     _dataScreenState.update {
                         it.copy(
-                            recommendedState = DataState.Success(result.data)
+                            recommendedState = DataState.Success(result.data.map { media ->
+                                media.copy(
+                                    isBookmarked = mediaDao.mediaExists(media.id)
+                                )
+                            })
                         )
                     }
                 }
@@ -149,6 +174,81 @@ class DetailScreenViewModel(
                         )
                     }
                 }
+            }
+        }
+    }
+
+    private fun onBookmarkMediaDetails(mediaDetails: MediaDetails) {
+        if (mediaDetails.isBookmarked) {
+            removeBookmark(mediaDetails.id)
+            return
+        }
+        val mediaItem = Media(
+            id = mediaDetails.id,
+            title = mediaDetails.title,
+            posterPath = mediaDetails.posterPath,
+            mediaType = mediaDetails.mediaType,
+            overview = mediaDetails.overview,
+            isBookmarked = mediaDetails.isBookmarked,
+            releaseDate = mediaDetails.releaseDate,
+            backdropPath = mediaDetails.backdropPath,
+        )
+        viewModelScope.launch {
+            mediaDao.insertMedia(mediaItem.toMediaEntity().copy(isBookmarked = true))
+        }
+        _dataScreenState.update {
+            val movieData = (it.mediaDetails as DataState.Success<MediaDetails>).data
+            it.copy(
+                mediaDetails = DataState.Success(movieData.copy(isBookmarked = true))
+            )
+        }
+    }
+
+    private fun onBookmarkMedia(media: Media) {
+        if (media.isBookmarked) {
+            removeBookmark(media.id,true)
+            return
+        }
+        viewModelScope.launch {
+            mediaDao.insertMedia(media.toMediaEntity().copy(isBookmarked = true))
+        }
+        _dataScreenState.update {
+            val movieData = (it.recommendedState as DataState.Success<List<Media>>).data
+            it.copy(
+                recommendedState = DataState.Success(movieData.map { recommendedMedia ->
+                    if (recommendedMedia.id == media.id) {
+                        recommendedMedia.copy(
+                            isBookmarked = true
+                        )
+                    } else recommendedMedia
+                })
+            )
+        }
+    }
+
+    private fun removeBookmark(id: Long,isRecommendedMedia:Boolean = false) {
+        viewModelScope.launch {
+            mediaDao.deleteMedia(id)
+        }
+        if (isRecommendedMedia) {
+            _dataScreenState.update {
+                val mediaData = (it.recommendedState as DataState.Success<List<Media>>).data
+                it.copy(
+                    recommendedState = DataState.Success(mediaData.map { recommendedMedia ->
+                        if (recommendedMedia.id == id) {
+                            recommendedMedia.copy(
+                                isBookmarked = false
+                            )
+                        } else recommendedMedia
+                    })
+                )
+            }
+        }else{
+            _dataScreenState.update {
+                val movieData = (it.mediaDetails as DataState.Success<MediaDetails>).data
+                it.copy(
+                    mediaDetails = DataState.Success(movieData.copy(isBookmarked = false))
+                )
             }
         }
     }
