@@ -17,7 +17,7 @@ fun MovieDetailsDto.toMediaDetails(): MediaDetails {
         title = title,
         voteAverage = voteAverage,
         voteCount = voteCount,
-        mediaType = MediaType.TV,
+        mediaType = MediaType.MOVIE,
         runtime = Formatter.formatMinutesToHoursAndMinutes(runtime),
     )
 }

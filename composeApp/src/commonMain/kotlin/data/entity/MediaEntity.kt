@@ -7,11 +7,11 @@ import androidx.room.PrimaryKey
 @Entity
 data class MediaEntity(
     @ColumnInfo(name = "backdrop_path")
-    val backdropPath: String?,
+    val backdropPath: String,
     val overview: String,
     val title: String,
     @ColumnInfo(name = "poster_path")
-    val posterPath: String?,
+    val posterPath: String,
     @ColumnInfo(name = "release_date")
     val releaseDate: String,
     @PrimaryKey(autoGenerate = false)

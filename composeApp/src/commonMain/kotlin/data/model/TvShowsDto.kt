@@ -19,7 +19,7 @@ data class TvShowsDto(
 data class TvResultDto(
     val adult: Boolean,
     @SerialName("backdrop_path")
-    val backdropPath: String?=null,
+    val backdropPath: String="",
     @SerialName("genre_ids")
     val genreIds: List<Long>,
     val id: Long,
@@ -32,7 +32,7 @@ data class TvResultDto(
     val overview: String,
     val popularity: Double,
     @SerialName("poster_path")
-    val posterPath: String?=null,
+    val posterPath: String="",
     @SerialName("first_air_date")
     val firstAirDate: String,
     val name: String,

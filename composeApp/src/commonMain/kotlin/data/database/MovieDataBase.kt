@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import data.dao.MediaDao
 import data.entity.MediaEntity
 
-@Database(entities = [MediaEntity::class], version = 2)
+@Database(entities = [MediaEntity::class], version = 3)
 abstract class MovieDataBase : RoomDatabase() {
     abstract fun mediaDao(): MediaDao
 }

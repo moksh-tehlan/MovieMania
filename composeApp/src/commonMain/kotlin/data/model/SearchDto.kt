@@ -16,14 +16,14 @@ data class SearchDto(
 @Serializable
 data class SearchResultDto(
     @SerialName("backdrop_path")
-    val backdropPath: String?=null,
+    val backdropPath: String="",
     val id: Long,
     val title: String?=null,
     @SerialName("original_title")
     val originalTitle: String?=null,
     val overview: String?=null,
     @SerialName("poster_path")
-    val posterPath: String?=null,
+    val posterPath: String="",
     @SerialName("media_type")
     val mediaType: String?=null,
     val adult: Boolean?=null,

@@ -17,14 +17,14 @@ data class MoviesAndShowsDto(
 @Serializable
 data class MoviesAndShowsResultDto(
     @SerialName("backdrop_path")
-    val backdropPath: String,
+    val backdropPath: String="",
     val id: Long,
     val name: String?=null,
     @SerialName("original_name")
     val originalName: String?=null,
     val overview: String,
     @SerialName("poster_path")
-    val posterPath: String,
+    val posterPath: String="",
     @SerialName("media_type")
     val mediaType: String,
     val adult: Boolean,
