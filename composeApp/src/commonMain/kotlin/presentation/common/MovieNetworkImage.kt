@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import coil3.compose.AsyncImage
 import coil3.compose.SubcomposeAsyncImage
+import coil3.request.ImageRequest
 import data.IMAGE_URL
 import utils.MovieColor
 
@@ -26,7 +28,6 @@ fun MovieNetworkImage(modifier: Modifier = Modifier, url: String?) {
                 modifier = Modifier.fillMaxSize().background(MovieColor.veryLightGray.copy(.12f)),
             )
         },
-        onSuccess = {},
         contentDescription = "Movie Image",
     )
 }
