@@ -40,6 +40,10 @@ kotlin {
         }
     }
 
+    sourceSets.commonMain {
+        kotlin.srcDir("build/generated/ksp/metadata")
+    }
+
     sourceSets {
         val desktopMain by getting
 
@@ -84,7 +88,6 @@ kotlin {
 
             implementation(libs.room.runtime)
             implementation(libs.sqlite.bundled)
-
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
